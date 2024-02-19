@@ -28,10 +28,10 @@ Time12H TimeManager::getCurrentTime()
     return currentTime;
 }
 
-Time12H TimeManager::getCurrentTimeFormattedInFiveMinuteSteps()
+Time12H TimeManager::formatTimeInFiveMinuteSteps(Time12H currentTime)
 {
-    Time12H currentTime = getCurrentTime();
-
+    /* printTime(currentTime);
+    Serial.print(" -> "); */
     int remainder_int = currentTime.getMinutes() % 5;
     float remainder_float = remainder_int;
 
@@ -46,18 +46,24 @@ Time12H TimeManager::getCurrentTimeFormattedInFiveMinuteSteps()
     if (remainder_float >= 2.5f)
     {
         formattedMinutes += 5 - remainder_int;
+        formattedMinutes %= 60;
     }
     else
     {
         formattedMinutes -= remainder_int;
     }
 
-    if (formattedMinutes == 0 && currentTime.getMinutes() > 30)
+    if (formattedMinutes == 0 && currentTime.getMinutes() >= 55)
     {
         formattedHours++;
+        if (formattedHours >= 13)
+        {
+            formattedHours = 1;
+        }
     }
 
     Time12H formattedTime = Time12H(formattedHours, formattedMinutes, 0);
+    /* printlnTime(formattedTime); */
     return formattedTime;
 }
 
@@ -98,8 +104,25 @@ void TimeManager::printCurrentTime()
     Serial.println(String(currentTime.getHours()) + ":" + String(currentTime.getMinutes()) + ":" + String(currentTime.getSeconds()));
 }
 
+void TimeManager::printCurrentTimeFormattedInFiveMinuteSteps(Time12H currentTime)
+{
+    Time12H currentFormattedTime = formatTimeInFiveMinuteSteps(currentTime);
+    printlnTime(currentFormattedTime);
+}
+
 void TimeManager::printCurrentTimeFormattedInFiveMinuteSteps()
 {
-    Time12H currentFormattedTime = getCurrentTimeFormattedInFiveMinuteSteps();
-    Serial.println(String(currentFormattedTime.getHours()) + ":" + String(currentFormattedTime.getMinutes()) + ":" + String(currentFormattedTime.getSeconds()));
+    Time12H currentTime = getCurrentTime();
+    printCurrentTimeFormattedInFiveMinuteSteps(currentTime);
+}
+
+void TimeManager::printTime(Time12H time)
+{
+    Serial.print(String(time.getHours()) + ":" + String(time.getMinutes()) + ":" + String(time.getSeconds()));
+}
+
+void TimeManager::printlnTime(Time12H time)
+{
+    printTime(time);
+    Serial.println();
 }

@@ -1,7 +1,7 @@
 #include "Display.h"
 
 CRGB Display::OFF = CRGB::Black;
-CRGB Display::DISPLAY_COLOR = CRGB::White;
+CRGB Display::DISPLAY_COLOR = CRGB::Blue;
 CRGB Display::ledStrip[LED_AMOUNT];
 
 Display::Display()
@@ -25,21 +25,46 @@ void Display::clear()
     FastLED.show();
 }
 
-void Display::displayTime()
+Time12H lastTimeFormatted = Time12H(1, 0, 0);
+
+void Display::displayTime(Time12H currentTime)
 {
+    Time12H currentTimeFormatted = timeManager.formatTimeInFiveMinuteSteps(currentTime);
+
+    if (currentTimeFormatted.getMinutes() >= 25) // after 25 minutes, the "Nach" changes to "Vor". Thus, the hour must be incremented by 1
+    {
+        int newHours = currentTimeFormatted.getHours() + 1;
+        if (newHours >= 13)
+        {
+            newHours = 1;
+        }
+        currentTimeFormatted.setHours(newHours);
+    }
+
+    if (lastTimeFormatted.getHours() == currentTimeFormatted.getHours() && lastTimeFormatted.getMinutes() == currentTimeFormatted.getMinutes())
+    {
+        return; // nothing has changed
+    }
+
+    lastTimeFormatted.setHours(currentTimeFormatted.getHours());
+    lastTimeFormatted.setMinutes(currentTimeFormatted.getMinutes());
+
     clear();
     activateLEDs(Es, 2);
     activateLEDs(Ist, 3);
 
-    Time12H currentTimeFormatted = timeManager.getCurrentTimeFormattedInFiveMinuteSteps();
-    if (currentTimeFormatted.getMinutes() >= 25) // after 25 minutes, the "Nach" changes to "Vor". Thus, the hour must be incremented by 1
-    {
-        currentTimeFormatted.setHours(currentTimeFormatted.getHours() + 1);
-    }
     switch (currentTimeFormatted.getHours())
     {
     case 1:
-        activateLEDs(Eins, 4);
+        if (currentTimeFormatted.getMinutes() == 0)
+        {
+            activateLEDs(Ein, 3);
+        }
+        else
+        {
+            activateLEDs(Eins, 4);
+        }
+
         break;
     case 2:
         activateLEDs(Zwei, 4);
@@ -75,7 +100,7 @@ void Display::displayTime()
         activateLEDs(Zwoelf, 5);
         break;
     default:
-        Serial.println("ERROR: hours_formatted has an unallowed value");
+        Serial.println("ERROR: hours_formatted has an unallowed value: " + String(currentTimeFormatted.getHours()));
         break;
     }
 
@@ -130,7 +155,7 @@ void Display::displayTime()
         activateLEDs(Vor, 3);
         break;
     default:
-        Serial.println("ERROR: minutes_formatted has an unallowed value");
+        Serial.println("ERROR: minutes_formatted has an unallowed value: " + String(currentTimeFormatted.getMinutes()));
         break;
     }
 

@@ -18,6 +18,7 @@ const int Halb[] = {44, 45, 46, 47};
 const int Zwoelf[] = {49, 50, 51, 52, 53, 54};
 const int Zwei[] = {62, 63, 64, 65};
 const int Eins[] = {60, 61, 62, 63};
+const int Ein[] = {61, 62, 63};
 const int Sieben[] = {55, 56, 57, 58, 59, 60};
 const int Drei[] = {67, 68, 69, 70};
 const int Fuenf[] = {73, 74, 75, 76};
@@ -31,7 +32,7 @@ const int Uhr[] = {100, 101, 102};
 
 #define LED_AMOUNT 110
 #define DATA_PIN 5
-#define BRIGHTNESS 255
+#define BRIGHTNESS 128
 
 class Display
 {
@@ -41,7 +42,7 @@ public:
     TimeManager timeManager;
     void setBrightness(int brightness);
     void clear();
-    void displayTime();
+    void displayTime(Time12H currentTimeFormatted);
     void activateLEDs(const int *ledIndecesToActivate, int arraySize);
     static void setLEDState(int index, CRGB color);
     static CRGB OFF;
