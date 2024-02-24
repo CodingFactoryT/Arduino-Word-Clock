@@ -1,25 +1,20 @@
 #include "TimeManager.h"
-
-TimeManager::TimeManager()
-{
-    configureTime();
-}
+#include "Display.h"
 
 Time12H TimeManager::getCurrentTime()
 {
     struct tm timeinfo;
-    if (!getLocalTime(&timeinfo))
+    while (!getLocalTime(&timeinfo))
     {
         Serial.println("Failed to obtain time");
-        Time12H failedTime = Time12H(-1, -1, -1);
-        return failedTime;
+        delay(100);
     }
 
     int hours = timeinfo.tm_hour;
     int minutes = timeinfo.tm_min;
     int seconds = timeinfo.tm_sec;
 
-    if (hours > 12)
+    if (hours >= 13)
     {
         hours -= 12;
     }
@@ -77,23 +72,48 @@ void TimeManager::configureTime()
 {
     Serial.printf("Connecting to %s ", ssid);
     WiFi.begin(ssid, password);
+
+    int wifiAnimationStatus = 0;
     while (WiFi.status() != WL_CONNECTED)
     {
-        delay(500);
+        Display::clear();
+
+        switch (wifiAnimationStatus)
+        {
+        case 0:
+            Display::activateLEDs(WLAN_ANIMATION_PART1, 1);
+            break;
+        case 1:
+            Display::activateLEDs(WLAN_ANIMATION_PART2, 6);
+            break;
+        case 2:
+            Display::activateLEDs(WLAN_ANIMATION_PART3, 17);
+            break;
+        }
+
+        FastLED.show();
+
+        wifiAnimationStatus = (wifiAnimationStatus + 1) % 3;
         Serial.print(".");
+        delay(500);
     }
+
     Serial.println(" CONNECTED");
+    Display::clear();
     Serial.print("Configuring Time ");
     struct tm timeinfo;
+
+    Display::activateLEDs(TIME_CONFIG, 22);
+    FastLED.show();
     do
     {
-        Serial.print(".");
         configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+        Serial.print(".");
         delay(100);
     } while (!getLocalTime(&timeinfo));
 
     Serial.println("Time configuration completed");
-
+    Display::clear();
     WiFi.disconnect(true);
     WiFi.mode(WIFI_OFF);
 }

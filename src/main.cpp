@@ -1,5 +1,10 @@
+// TODO implement brightness sensor for adjusting the brightness of the display (light=high brightness, dark = low brightness)
+// TODO implement time zones where the clock should stay off
 #include <Arduino.h>
 #include "Display.h"
+
+#define PIR 26 // motion sensor pin
+
 Display *display = nullptr;
 
 int testHours = 11;
@@ -32,14 +37,35 @@ void testDisplayTime()
 void setup()
 {
   Serial.begin(9600);
+  pinMode(PIR, INPUT);
+
   display = new Display();
+  display->timeManager.configureTime();
+
   Serial.println("Setup complete");
 }
 
+bool isDisplayOn = false;
 void loop()
 {
-  Time12H currentTime = display->timeManager.getCurrentTime();
-  display->displayTime(currentTime);
-  delay(1000);
+  if (digitalRead(PIR))
+  {
+    if (!isDisplayOn)
+    {
+      display->setShouldUpdate(true);
+    }
+
+    Time12H currentTime = display->timeManager.getCurrentTime();
+    display->displayTime(currentTime);
+    isDisplayOn = true;
+  }
+  else if (isDisplayOn)
+  {
+    display->clear();
+    isDisplayOn = false;
+  }
+
+  delay(250);
+
   // testDisplayTime();
 }

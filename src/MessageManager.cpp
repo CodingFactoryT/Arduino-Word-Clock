@@ -43,10 +43,8 @@ void MessageManager::displayMessage(String message, int delayBetweenCharacters, 
 
 void MessageManager::displayQuestionMark(int duration)
 {
-    for (uint16_t i = 0; i < (sizeof(questionMark) / sizeof(questionMark[0])); i++)
-    {
-        Display::setLEDState(questionMark[i], Display::DISPLAY_COLOR);
-    }
+    Display::activateLEDs(questionMark, 6);
+    FastLED.show();
 
     FastLED.show();
     delay(duration);

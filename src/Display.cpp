@@ -8,6 +8,7 @@ Display::Display()
 {
     FastLED.addLeds<WS2812B, DATA_PIN, RGB>(ledStrip, LED_AMOUNT); // GRB ordering is typical
     setBrightness(BRIGHTNESS);
+    Serial.println("Display initialized!");
 }
 
 void Display::setBrightness(int brightness)
@@ -41,11 +42,14 @@ void Display::displayTime(Time12H currentTime)
         currentTimeFormatted.setHours(newHours);
     }
 
-    if (lastTimeFormatted.getHours() == currentTimeFormatted.getHours() && lastTimeFormatted.getMinutes() == currentTimeFormatted.getMinutes())
+    if (lastTimeFormatted.getHours() == currentTimeFormatted.getHours() &&
+        lastTimeFormatted.getMinutes() == currentTimeFormatted.getMinutes() &&
+        !getShouldUpdate())
     {
         return; // nothing has changed
     }
 
+    setShouldUpdate(false);
     lastTimeFormatted.setHours(currentTimeFormatted.getHours());
     lastTimeFormatted.setMinutes(currentTimeFormatted.getMinutes());
 
@@ -173,4 +177,14 @@ void Display::activateLEDs(const int *ledIndecesToActivate, int arraySize)
 void Display::setLEDState(int index, CRGB color)
 {
     ledStrip[index] = color;
+}
+
+bool Display::getShouldUpdate()
+{
+    return shouldUpdate;
+}
+
+void Display::setShouldUpdate(bool shouldUpdate)
+{
+    this->shouldUpdate = shouldUpdate;
 }

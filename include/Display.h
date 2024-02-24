@@ -30,9 +30,16 @@ const int Zehn[] = {93, 94, 95, 96};
 const int Sechs[] = {104, 105, 106, 107, 108};
 const int Uhr[] = {100, 101, 102};
 
+const int TIME_CONFIG[] = {18, 17, 16, 15, 14, 25, 29, 40, 36, 48, 50, 61, 59, 69, 73, 84, 80, 91, 92, 93, 94, 95};
+
+// Animations
+const int WLAN_ANIMATION_PART1[] = {82};
+const int WLAN_ANIMATION_PART2[] = {82, 73, 59, 60, 61, 69};
+const int WLAN_ANIMATION_PART3[] = {82, 73, 59, 60, 61, 69, 56, 53, 35, 29, 28, 27, 26, 25, 41, 45, 64};
+
 #define LED_AMOUNT 110
 #define DATA_PIN 5
-#define BRIGHTNESS 128
+#define BRIGHTNESS 255 // 0-255
 
 class Display
 {
@@ -40,16 +47,19 @@ public:
     Display();
     MessageManager messageManager;
     TimeManager timeManager;
-    void setBrightness(int brightness);
-    void clear();
+    static void setBrightness(int brightness);
+    static void clear();
     void displayTime(Time12H currentTimeFormatted);
-    void activateLEDs(const int *ledIndecesToActivate, int arraySize);
+    static void activateLEDs(const int *ledIndecesToActivate, int arraySize);
     static void setLEDState(int index, CRGB color);
     static CRGB OFF;
     static CRGB DISPLAY_COLOR;
+    void setShouldUpdate(bool shouldUpdate);
+    bool getShouldUpdate();
 
 private:
     static CRGB ledStrip[LED_AMOUNT];
+    bool shouldUpdate;
 };
 
 #endif; // DISPLAY_H
