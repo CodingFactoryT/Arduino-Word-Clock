@@ -48,7 +48,6 @@ void Display::displayTime(Time12H currentTime)
     {
         return; // nothing has changed
     }
-
     setShouldUpdate(false);
     lastTimeFormatted.setHours(currentTimeFormatted.getHours());
     lastTimeFormatted.setMinutes(currentTimeFormatted.getMinutes());

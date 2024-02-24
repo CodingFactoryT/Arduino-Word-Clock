@@ -19,14 +19,17 @@ Time12H TimeManager::getCurrentTime()
         hours -= 12;
     }
 
+    if (hours == 0)
+    {
+        hours = 12;
+    }
+
     Time12H currentTime = Time12H(hours, minutes, seconds);
     return currentTime;
 }
 
 Time12H TimeManager::formatTimeInFiveMinuteSteps(Time12H currentTime)
 {
-    /* printTime(currentTime);
-    Serial.print(" -> "); */
     int remainder_int = currentTime.getMinutes() % 5;
     float remainder_float = remainder_int;
 
@@ -51,7 +54,7 @@ Time12H TimeManager::formatTimeInFiveMinuteSteps(Time12H currentTime)
     if (formattedMinutes == 0 && currentTime.getMinutes() >= 55)
     {
         formattedHours++;
-        if (formattedHours >= 13)
+        if (formattedHours >= 13 || formattedHours == 0)
         {
             formattedHours = 1;
         }
